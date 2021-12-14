@@ -33,11 +33,11 @@ output "count_user_arns" {
 }
 
 resource "aws_iam_user" "for_each_set" {
-  for_each = toset(
-    "for-each-set-user-1"
-    "for-each-set-user-2"
-    "for-each-set-user-3"
-  )
+  for_each = toset([
+    "for-each-set-user-1",
+    "for-each-set-user-2",
+    "for-each-set-user-3",
+  ])
 
   name = each.key
 }
