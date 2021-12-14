@@ -2,67 +2,30 @@ provider "aws" {
   region = "ap-northeast-2"
 }
 
-resource "aws_iam_user" "user_1" {
-  name = "user-1"
+variable "is_jhon" {
+  type = bool
+  default = true
 }
 
-resource "aws_iam_user" "user_2" {
-  name = "user-2"
+locals {
+  message = var.is_jhon ? "Hello John!":"Hello!"
 }
 
-resource "aws_iam_user" "user_3" {
-  name = "user-3"
+output "message" {
+  value = local.message
 }
 
-output "user_arns" {
-  value = [
-    aws_iam_user.user_1.arn,
-    aws_iam_user.user_2.arn,
-    aws_iam_user.user_3.arn,
-  ]
+variable "internet_gateway_enabled" {
+  type = bool
+  default = true
 }
 
-resource "aws_iam_user" "count" {
-  count = 10
-
-  name = "count-user-${count.index}"
+resource "aws_vpc" "this" {
+  cidr_block = "10.0.0.0/16"
 }
 
-output "count_user_arns" {
-  value = aws_iam_user.count.*.arn
-}
+resource "aws_internet_gateway" "this" {
+  count = var.internet_gateway_enabled ? 1 : 0
 
-resource "aws_iam_user" "for_each_set" {
-  for_each = toset([
-    "for-each-set-user-1",
-    "for-each-set-user-2",
-    "for-each-set-user-3",
-  ])
-
-  name = each.key
-}
-
-output "for_each_set_user_arns" {
-  value = values(aws_iam_user.for_each_set).*.arn
-}
-
-resource "aws_iam_user" "for_each_map" {
-  for_each = {
-    alice = {
-      level = "low"
-      manager = "posquit0"
-    }
-    bob = {
-      level = "mid"
-      manager = "posquit0"
-    }
-    jhon = {
-      level = "high"
-      manager = "steve"
-    }
-  }
-
-  name = each.key
-
-  tags = each.value
+  vpc_id = aws_vpc.this.id
 }
